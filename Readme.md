@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to IU Habit Tracker App 👋</h1>
+<h1 align="center">Welcome to the IU Habit Tracker App 👋</h1>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-0.1-blue.svg?cacheSeconds=2592000" />
   <a href="https://twitter.com/BCopela80821946" target="_blank">
