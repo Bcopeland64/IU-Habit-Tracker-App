@@ -36,7 +36,7 @@ pytest .
 
 * Twitter: [@BCopela80821946](https://twitter.com/BCopela80821946)
 * Github: [@Bcopeland64](https://github.com/Bcopeland64)
-* LinkedIn: [@Brandon Copeland](https://linkedin.com/in/Brandon Copeland)
+* LinkedIn: [@Brandon Copeland](https://linkedin.com/in/brandon-copeland64)
 
 ## Show your support
 
