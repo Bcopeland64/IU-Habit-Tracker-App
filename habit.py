@@ -30,7 +30,7 @@ class Habit:
         self.name = name
         self.description = description
         self.duration = duration
-        self.database = database.establish_connection(self.database)
+        self.database = database
         self.streak = 0
         self.start_time = date.today().strftime("%m/%d/%Y")
         

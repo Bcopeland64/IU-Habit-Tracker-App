@@ -1,0 +1,8 @@
+from database import *
+
+establish_connection('main.db')
+print('connection established')
+
+add('main.db', 'test', 'test', 'Daily', '12:00', '1 week')
+
+get_habit_duration('main.db', 'test')
