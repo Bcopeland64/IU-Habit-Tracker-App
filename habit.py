@@ -7,6 +7,7 @@ Created on Thu Oct 20 19:10:58 2022
 """
 from datetime import date
 from datetime import datetime
+from analytics import *
 from database import *
 
 class Habit: 
@@ -30,14 +31,16 @@ class Habit:
         self.name = name
         self.description = description
         self.duration = duration
-        self.database = database
+        self.database = establish_connection('main.db')
         self.streak = 0
         self.start_time = date.today().strftime("%m/%d/%Y")
         
     def add_habit(self):
         if habit_exists(self.database, self.name) is False:
-            self.database.add(self.database, self.name, self.description, self.duration, self.start_time, self.streak)
-            print(f'{self.name} has been added to the database as a {self.duration} habit starting on {self.start_time}\n')
+            self.database.add(self.database, self.name, self.description,
+                              self.duration, self.start_time, self.streak)
+            print(
+                f'{self.name} has been added to the database as a {self.duration} habit starting on {self.start_time}\n')
             
         else: 
             print(f'{self.name} already exists in the database\n')
@@ -109,6 +112,8 @@ class Habit:
             
     def habit_verifier(self):
         pass
+    
+   
         
             
     

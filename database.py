@@ -7,6 +7,7 @@ Created on Thu Oct 20 19:13:06 2022
 """
 import sqlite3
 from datetime import date
+from habit import *
 
 
 def establish_connection(name='main.db'):
@@ -61,6 +62,7 @@ def add(db, name, description, duration, start_time, streak):
         start_time (str): _description_
         streak (int): _description_
     """
+    db = establish_connection()
     cursor = db.cursor()
     cursor.execute('''INSERT INTO habits (name, description, duration, start_time, streak) VALUES (?, ?, ?, ?, ?)''', (name, description, duration, start_time, streak))
     db.commit()
@@ -91,6 +93,7 @@ def habit_exists(db, name):
     Returns:
         bool: _description_
     """
+    db = establish_connection()
     cursor = db.cursor()
     cursor.execute('''SELECT * FROM habits WHERE name = ?''', (name,))
     if cursor.fetchone() is not None:
@@ -241,4 +244,7 @@ def get_habit_duration(db, name):
     cursor = db.cursor()
     cursor.execute('''SELECT duration FROM habits WHERE name = ?''', (name,))
     return cursor.fetchone()[0]
+
+
+
         

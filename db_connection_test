@@ -2,7 +2,7 @@ from database import *
 
 establish_connection('main.db')
 print('connection established')
+test_db = create_table('main.db')
+print(test_db)
 
-add('main.db', 'test', 'test', 'Daily', '12:00', '1 week')
 
-get_habit_duration('main.db', 'test')
