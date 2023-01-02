@@ -21,7 +21,20 @@ pip install -r requirements.txt
 ## Usage
 
 ```sh
-python main.py
+Usage: main.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  create
+  delete
+  list
+  list-period
+  longest-streak
+  longest-streak-habit
+  mark
+  unmark
 ```
 
 ## Run tests
