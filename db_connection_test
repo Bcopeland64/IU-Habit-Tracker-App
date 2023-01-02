@@ -1,8 +1,0 @@
-from database import *
-
-establish_connection('main.db')
-print('connection established')
-test_db = create_table('main.db')
-print(test_db)
-
-
