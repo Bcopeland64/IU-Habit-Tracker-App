@@ -21,7 +21,8 @@ pip install -r requirements.txt
 ## Usage
 
 ```sh
-Usage: main.py [OPTIONS] COMMAND [ARGS]...
+
+Usage: python3 main.py [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
