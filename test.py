@@ -1,6 +1,7 @@
 import pytest
 import datetime 
-import db
+import db 
+import analytics
 
 def test_habit_mark_complete(habit):
     habit.mark_complete()

@@ -1,6 +1,7 @@
 import click
-from habit import HabitTracker
+from habit import HabitTracker, Habit
 import questionary
+from analytics import *
 from db import *
 
 tracker = HabitTracker()
@@ -12,10 +13,10 @@ def cli():
 @cli.command()
 def create():
     name = questionary.text("Enter the habit name: ").ask()
-    period = questionary.select("Enter the habit period:", choices=["daily", "weekly"]).ask()
+    period = questionary.select("Enter the habit period:", choices=["daily", "weekly", "monthly"]).ask()
     tracker.create_habit(name, period)
     click.echo(f'Habit "{name}" with period "{period}" created successfully!')
-
+    
 @cli.command()
 def delete():
     name = questionary.text("Enter the habit name: ").ask()
@@ -87,3 +88,32 @@ def main():
             click.echo('Current habits:')
             for habit in habits:
                 click.echo(f'- {habit.name} ({habit.period})')
+        elif command == 'list-period':
+            period = input('Enter the habit period (daily or weekly): ')
+            habits = tracker.get_habits_by_period(period)
+            click.echo(f'Current {period} habits:')
+            for habit in habits:
+                click.echo(f'- {habit.name}')
+        elif command == 'longest-streak':
+            longest_streak_habit = tracker.get_longest_streak()
+            if longest_streak_habit:
+                click.echo(f'Habit with longest streak: {longest_streak_habit.name} ({longest_streak_habit.get_streak()})')
+            else:
+                click.echo('No habits with a streak.')
+        elif command == 'longest-streak-habit':
+            name = input('Enter the habit name: ')
+            streak = tracker.get_longest_streak_by_habit(name)
+            if streak:
+                click.echo(f'Longest streak for habit "{name}": {streak}')
+            else:
+                click.echo(f'Habit "{name}" not found.')
+        elif command == 'mark':
+            name = input('Enter the habit name: ')
+            tracker.mark_complete(name)
+            click.echo(f'Habit "{name}" marked successfully!')
+        elif command == 'unmark':
+            name = input('Enter the habit name: ')
+            tracker.mark_incomplete(name)
+            click.echo(f'Habit "{name}" unmarked successfully!')
+        elif command == 'exit':
+            break

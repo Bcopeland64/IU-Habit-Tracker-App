@@ -66,6 +66,7 @@ class HabitTracker:
             if habit.name == name:
                 habit.mark_complete()
                 break
+            
     def mark_incomplete(self, name: str):
         for habit in self.habits:
             if habit.name == name:
