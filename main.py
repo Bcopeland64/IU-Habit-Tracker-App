@@ -2,7 +2,7 @@ import click
 from habit import HabitTracker, Habit
 import questionary
 from analytics import *
-from db import *
+from db import HabitDB
 
 tracker = HabitTracker()
 
@@ -24,14 +24,14 @@ def delete():
     click.echo(f'Habit "{name}" deleted successfully!')
 
 @cli.command()
-def list():
+def habit_groups():
     habits = tracker.get_habits()
     click.echo('Current habits:')
     for habit in habits:
         click.echo(f'- {habit.name} ({habit.period})')
 
 @cli.command()
-def list_period():
+def habit_groups_period():
     period = questionary.select("Enter the habit period:", choices=["daily", "weekly", "monthly"]).ask()
     habits = tracker.get_habits_by_period(period)
     click.echo(f'Current {period} habits:')
@@ -83,12 +83,12 @@ def main():
             name = input('Enter the habit name: ')
             tracker.delete_habit(name)
             click.echo(f'Habit "{name}" deleted successfully!')
-        elif command == 'list':
+        elif command == 'habit_groups':
             habits = tracker.get_habits()
             click.echo('Current habits:')
             for habit in habits:
                 click.echo(f'- {habit.name} ({habit.period})')
-        elif command == 'list-period':
+        elif command == 'habit_groups_period':
             period = input('Enter the habit period (daily or weekly): ')
             habits = tracker.get_habits_by_period(period)
             click.echo(f'Current {period} habits:')

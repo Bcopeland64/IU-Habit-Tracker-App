@@ -4,7 +4,7 @@ from habit import Habit
 
 
 class HabitDB:
-    def __init__(self):
+    def establish_a_connection(self):
         self.conn = sqlite3.connect('habits.db')
         self.cursor = self.conn.cursor()
         self.cursor.execute('''
@@ -70,11 +70,10 @@ class HabitDB:
             id, name, period, created_at = row
             self.cursor.execute(
             'SELECT completed_at FROM completions WHERE habit_id=?',
-            (id,)
-        )
-        completed_at_rows = self.cursor.fetchall()
-        completed_at = [row[0] for row in completed_at_rows]
-        habits.append(Habit(id, name, period, created_at, completed_at))
+            (id,))
+            completed_at_rows = self.cursor.fetchall()
+            completed_at = [row[0] for row in completed_at_rows]
+            habits.append(Habit(id, name, period, created_at, completed_at))
         return habits
 
     def get_habits_by_period(self, period: str):
