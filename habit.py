@@ -68,7 +68,11 @@ class HabitTracker:
                 break
             
     def mark_incomplete(self, name: str):
+        for i, completed_at in enumerate(self.completed_at):
+            if self.name == name:
+                del self.completed_at[i] 
+            
+    def relationships(self):
         for habit in self.habits:
-            if habit.name == name:
-                habit.mark_incomplete()
-                break
+            print(habit.name, habit.get_streak())       
+            

@@ -7,21 +7,24 @@ class HabitDB:
     def establish_a_connection(self):
         self.conn = sqlite3.connect('habits.db')
         self.cursor = self.conn.cursor()
+
+    # Create habits table if it does not exist
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS habits (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 period TEXT NOT NULL,
                 created_at DATETIME NOT NULL
-            )
-        ''')
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS completions (
-                habit_id INTEGER NOT NULL,
-                completed_at DATETIME NOT NULL,
-                FOREIGN KEY(habit_id) REFERENCES habits(id)
-            )
-        ''')
+            )''')
+
+    # Create completions table if it does not exist 
+        self.cursor.execute(''' 
+            CREATE TABLE IF NOT EXISTS completions ( 
+                habit_id INTEGER NOT NULL, 
+                completed_at DATETIME NOT NULL, 
+                FOREIGN KEY(habit_id) REFERENCES habits(id) ON 
+                DELETE CASCADE  //added ON DELETE CASCADE to delete the related entries in completions when a row in habits is deleted 
+            )''')
 
     def create_habit(self, name: str, period: str):
         self.cursor.execute(
@@ -29,7 +32,6 @@ class HabitDB:
             (name, period, datetime.now())
         )
         self.conn.commit()
-        
 
     def delete_habit(self, name: str):
         self.cursor.execute(
@@ -69,8 +71,8 @@ class HabitDB:
         for row in rows:
             id, name, period, created_at = row
             self.cursor.execute(
-            'SELECT completed_at FROM completions WHERE habit_id=?',
-            (id,))
+                'SELECT completed_at FROM completions WHERE habit_id=?',
+                (id,))
             completed_at_rows = self.cursor.fetchall()
             completed_at = [row[0] for row in completed_at_rows]
             habits.append(Habit(id, name, period, created_at, completed_at))
@@ -87,7 +89,3 @@ class HabitDB:
                 (id,)
             )
             completed_at_rows = self.cursor.fetchall()
-            
-    
-
-
