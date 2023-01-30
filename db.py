@@ -10,7 +10,7 @@ class HabitDB:
 
     # Create habits table if it does not exist
         self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS habits (
+                CREATE TABLE IF NOT EXISTS habits (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL,
                 period TEXT NOT NULL,
