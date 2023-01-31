@@ -67,10 +67,6 @@ def unmark():
     tracker.mark_incomplete(name)
     click.echo(f'Habit "{name}" unmarked successfully!')
 
-if __name__ == '__main__':
-    cli()
-
-
 def main():
     while True:
         command = input('Enter a command (create, delete, list, list-period, longest-streak, longest-streak-habit, or exit): ')
@@ -117,3 +113,6 @@ def main():
             click.echo(f'Habit "{name}" unmarked successfully!')
         elif command == 'exit':
             break
+
+if __name__ == '__main__':
+    cli()
