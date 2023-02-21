@@ -1,118 +1,62 @@
-import click
-from habit import HabitTracker, Habit
+import datetime
 import questionary
-from analytics import *
 from db import HabitDB
-
-tracker = HabitTracker()
-
-@click.group()
-def cli():
-    pass
-
-@cli.command()
-def create():
-    name = questionary.text("Enter the habit name: ").ask()
-    period = questionary.select("Enter the habit period:", choices=["daily", "weekly", "monthly"]).ask()
-    tracker.create_habit(name, period)
-    click.echo(f'Habit "{name}" with period "{period}" created successfully!')
-    
-@cli.command()
-def delete():
-    name = questionary.text("Enter the habit name: ").ask()
-    tracker.delete_habit(name)
-    click.echo(f'Habit "{name}" deleted successfully!')
-
-@cli.command()
-def habit_groups():
-    habits = tracker.get_habits()
-    click.echo('Current habits:')
-    for habit in habits:
-        click.echo(f'- {habit.name} ({habit.period})')
-
-@cli.command()
-def habit_groups_period():
-    period = questionary.select("Enter the habit period:", choices=["daily", "weekly", "monthly"]).ask()
-    habits = tracker.get_habits_by_period(period)
-    click.echo(f'Current {period} habits:')
-    for habit in habits:
-        click.echo(f'- {habit.name}')
-
-@cli.command()
-def longest_streak():
-    longest_streak_habit = tracker.get_longest_streak()
-    if longest_streak_habit:
-        click.echo(f'Habit with longest streak: {longest_streak_habit.name} ({longest_streak_habit.get_streak()})')
-    else:
-        click.echo('No habits with a streak.')
-
-@cli.command()
-def longest_streak_habit():
-    name = questionary.text("Enter the habit name: ").ask()
-    streak = tracker.get_longest_streak_by_habit(name)
-    if streak:
-        click.echo(f'Longest streak for habit "{name}": {streak}')
-    else:
-        click.echo(f'Habit "{name}" not found.')
-        
-@cli.command()
-def mark():
-    name = questionary.text("Enter the habit name: ").ask()
-    tracker.mark_complete(name)
-    click.echo(f'Habit "{name}" marked successfully!')
-    
-@cli.command()
-def unmark():
-    name = questionary.text("Enter the habit name: ").ask()
-    tracker.mark_incomplete(name)
-    click.echo(f'Habit "{name}" unmarked successfully!')
+from habit import Habit
 
 def main():
+    """This is the main entry point of the program"""
     while True:
-        command = input('Enter a command (create, delete, list, list-period, longest-streak, longest-streak-habit, or exit): ')
-        if command == 'create':
-            name = input('Enter the habit name: ')
-            period = input('Enter the habit period (daily or weekly): ')
-            tracker.create_habit(name, period)
-            click.echo(f'Habit "{name}" with period "{period}" created successfully!')
-        elif command == 'delete':
-            name = input('Enter the habit name: ')
-            tracker.delete_habit(name)
-            click.echo(f'Habit "{name}" deleted successfully!')
-        elif command == 'habit_groups':
-            habits = tracker.get_habits()
-            click.echo('Current habits:')
-            for habit in habits:
-                click.echo(f'- {habit.name} ({habit.period})')
-        elif command == 'habit_groups_period':
-            period = input('Enter the habit period (daily or weekly): ')
-            habits = tracker.get_habits_by_period(period)
-            click.echo(f'Current {period} habits:')
-            for habit in habits:
-                click.echo(f'- {habit.name}')
-        elif command == 'longest-streak':
-            longest_streak_habit = tracker.get_longest_streak()
-            if longest_streak_habit:
-                click.echo(f'Habit with longest streak: {longest_streak_habit.name} ({longest_streak_habit.get_streak()})')
-            else:
-                click.echo('No habits with a streak.')
-        elif command == 'longest-streak-habit':
-            name = input('Enter the habit name: ')
-            streak = tracker.get_longest_streak_by_habit(name)
-            if streak:
-                click.echo(f'Longest streak for habit "{name}": {streak}')
-            else:
-                click.echo(f'Habit "{name}" not found.')
-        elif command == 'mark':
-            name = input('Enter the habit name: ')
-            tracker.mark_complete(name)
-            click.echo(f'Habit "{name}" marked successfully!')
-        elif command == 'unmark':
-            name = input('Enter the habit name: ')
-            tracker.mark_incomplete(name)
-            click.echo(f'Habit "{name}" unmarked successfully!')
-        elif command == 'exit':
-            break
+        choices = [
+            {'name': 'Create a habit', 'value': create_habit},
+            {'name': 'List habits', 'value': list_habits},
+            {'name': 'Mark habit complete', 'value': mark_complete},
+            {'name': 'Mark habit incomplete', 'value': mark_incomplete},
+            {'name': 'Delete a habit', 'value': delete_habit},
+            {'name': 'Exit', 'value': exit}
+        ]
+        choice = questionary.select('What would you like to do?', choices=choices).ask()
+
+        if choice:
+            choice()
+
+def create_habit():
+    """This function creates a habit"""
+    name = questionary.text('Enter the name of the habit:').ask()
+    frequency = questionary.select('How often should this habit be completed?', choices=['daily', 'weekly', 'monthly']).ask()
+    completed = False
+    habit = HabitDB(name, frequency)
+    habit.save()
+    print(f'Habit "{name}" with frequency "{frequency}" created successfully!')
+
+def list_habits():
+    """This function lists all habits"""
+    habits = Habit.list_all()
+    for habit in habits:
+        print(f'{habit.name} ({habit.frequency} days) - {"Complete" if habit.completed else "Incomplete"}')
+
+def mark_complete():
+    """This function marks a habit as complete"""
+    habits = Habit.list_all()
+    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
+    habit = questionary.select('Which habit would you like to mark as complete?', choices=habit_choices).ask()
+    habit.mark_complete()
+    print(f'Habit "{habit.name}" marked as complete!')
+
+def mark_incomplete():
+    """This function marks a habit as incomplete"""
+    habits = Habit.list_all()
+    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
+    habit = questionary.select('Which habit would you like to mark as incomplete?', choices=habit_choices).ask()
+    habit.mark_incomplete()
+    print(f'Habit "{habit.name}" marked as incomplete!')
+
+def delete_habit():
+    """This function deletes a habit"""
+    habits = Habit.list_all()
+    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
+    habit = questionary.select('Which habit would you like to delete?', choices=habit_choices).ask()
+    habit.delete()
+    print(f'Habit "{habit.name}" deleted successfully!')
 
 if __name__ == '__main__':
-    cli()
+    main()

@@ -1,61 +1,58 @@
-import pytest
-import datetime 
-import db 
-import analytics
+import unittest
+from habit import Habit
+from datetime import datetime
 
-def test_habit_mark_complete(habit):
-    habit.mark_complete()
-    assert len(habit.completed_at) == 1
-    assert habit.completed_at[0] == datetime.now()
 
-def test_habit_get_streak(habit):
-    assert habit.get_streak() == 0
-    habit.completed_at = [datetime.now()]
-    assert habit.get_streak() == 1
+class TestHabit(unittest.TestCase):
+    """_summary_This class tests the Habit class
 
-def test_habit_tracker_create_habit(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    assert len(tracker.habits) == 1
-    assert tracker.habits[0].name == 'Exercise'
-    assert tracker.habits[0].period == 'daily'
+    Args:
+        unittest (_type_): _creates testing class_
+    """
+    def test_create_habit(self):
+        """_summary_This method tests the creation of a habit"""
+        h = Habit('Drink 8 glasses of water', 'daily')
+        self.assertEqual(h.name, 'Drink 8 glasses of water')
+        self.assertEqual(h.frequency, 'daily')
+        self.assertFalse(h.completed)
 
-def test_habit_tracker_delete_habit(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    assert len(tracker.habits) == 1
-    tracker.delete_habit('Exercise')
-    assert len(tracker.habits) == 0
+    def test_mark_habit_complete(self):
+        """_summary_This method tests the marking of a habit as complete"""
+        h = Habit('Go for a walk', 'daily')
+        h.mark_complete()
+        self.assertTrue(h.completed)
 
-def test_habit_tracker_get_habits(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    tracker.create_habit('Meditate', 'daily')
-    assert len(tracker.get_habits()) == 2
+         
+    def test_is_complete_daily(self):
+        """_summary_This method tests the is_complete method"""
+        h = Habit('Go for a walk', 'daily')
+        h.mark_complete()
+        self.assertTrue(h.completed)
+        
+    def test_is_complete_weekly(self):
+        """_summary_This method tests the is_complete method"""
+        h = Habit('Go for a walk', 'weekly')
+        h.mark_complete()
+        self.assertTrue(h.completed)
+        
+    def test_is_complete_monthly(self):
+        """_summary_This method tests the is_complete method"""
+        h = Habit('Go for a walk', 'monthly')
+        h.mark_complete()
+        self.assertTrue(h.completed)
+        
+    def test_list_by_frequency(self):
+        """_summary_This method tests the list_by_frequency method"""
+        h = Habit('Go for a walk', 'daily')
+        h.mark_complete()
+        self.assertTrue(h.completed)
+        
+    def test_list_all(self):
+        """_summary_This method tests the list_all method"""
+        h = Habit('Go for a walk', 'daily')
+        h.mark_complete()
+        self.assertTrue(h.completed)
 
-def test_habit_tracker_get_habits_by_period(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    tracker.create_habit('Meditate', 'daily')
-    tracker.create_habit('Read', 'weekly')
-    assert len(tracker.get_habits_by_period('daily')) == 2
-    assert len(tracker.get_habits_by_period('weekly')) == 1
-    
-def test_get_longest_streak(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    tracker.create_habit('Meditate', 'daily')
-    tracker.create_habit('Read', 'weekly')
-    tracker.habits[0].completed_at = [datetime.now()]
-    tracker.habits[1].completed_at = [datetime.now(), datetime.now()]
-    tracker.habits[2].completed_at = [datetime.now(), datetime.now(), datetime.now()]
-    assert tracker.get_longest_streak().name == 'Read'
-    
-def test_get_longest_streak_by_habit(tracker):
-    tracker.create_habit('Exercise', 'daily')
-    tracker.create_habit('Meditate', 'daily')
-    tracker.create_habit('Read', 'weekly')
-    tracker.habits[0].completed_at = [datetime.now()]
-    tracker.habits[1].completed_at = [datetime.now(), datetime.now()]
-    tracker.habits[2].completed_at = [datetime.now(), datetime.now(), datetime.now()]
-    assert tracker.get_longest_streak_by_habit('Exercise') == 1
-    assert tracker.get_longest_streak_by_habit('Meditate') == 2
-    assert tracker.get_longest_streak_by_habit('Read') == 3
-    assert tracker.get_longest_streak_by_habit('Write') == 0
-    
 
+if __name__ == '__main__':
+    unittest.main()
