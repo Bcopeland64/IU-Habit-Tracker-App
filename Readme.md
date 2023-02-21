@@ -41,7 +41,7 @@ Commands:
 ## Run tests
 
 ```sh
-unittest .
+python -m unittest discover
 ```
 
 ## Author
