@@ -28,14 +28,14 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-    create_habit - Create a habit
-    list_habits - List all habits
-    mark_complete - Mark a habit as complete
-    mark_incomplete - Mark a habit as incomplete
-    delete_habit - Delete a habit
-    help - Display the help menu
-    list_commands - List all commands
-    exit - Exit the app
+    create_habit 
+    list_habits 
+    mark_complete 
+    mark_incomplete 
+    delete_habit 
+    help 
+    list_commands 
+    exit 
 ```
 
 ## Run tests
