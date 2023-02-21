@@ -57,6 +57,25 @@ def delete_habit():
     habit = questionary.select('Which habit would you like to delete?', choices=habit_choices).ask()
     habit.delete()
     print(f'Habit "{habit.name}" deleted successfully!')
+    
+def help():
+    """This function displays the help menu"""
+    print('''
+    This is a habit tracker app. You can use it to create habits, mark them as complete, and delete them.
+    ''')
+    
+def list_commands():
+    """This function lists all commands"""
+    print('''
+    create_habit - Create a habit
+    list_habits - List all habits
+    mark_complete - Mark a habit as complete
+    mark_incomplete - Mark a habit as incomplete
+    delete_habit - Delete a habit
+    help - Display the help menu
+    list_commands - List all commands
+    exit - Exit the app
+    ''')
 
 if __name__ == '__main__':
     main()
