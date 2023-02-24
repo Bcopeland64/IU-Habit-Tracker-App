@@ -23,19 +23,19 @@ pip install -r requirements.txt
 ```sh
 
 Usage: python3 main.py [OPTIONS] COMMAND [ARGS]...
+Make sure to create a habit first
 
 Options:
-  --help  Show this message and exit.
+  help  Show this message and exit.
 
 Commands:
-    create_habit 
-    list_habits 
-    mark_complete 
-    mark_incomplete 
-    delete_habit 
-    help 
-    list_commands 
-    exit 
+    
+create_habit - create a habit
+mark_habit_complete - mark a habit as complete
+delete_habit - delete a habit
+list_habits - list all habits
+get_streak - get the streak for a habit
+exit - exit the program
 ```
 
 ## Run tests
