@@ -1,111 +1,160 @@
 import sqlite3
-from datetime import datetime
-from habit import Habit
+from datetime import datetime, timedelta
 
-class HabitDB:
-    def __init__(self, name, frequency):
+
+class Habit:
+    def __init__(self, name="", frequency="", completed=[]):
         self.name = name
         self.frequency = frequency
         self.completed = []
-        
-    
+
     def mark_complete(self):
-        """_summary_This method marks a habit as complete"""
-        today = datetime.date.today()
+        """marks habit as complete for today"""
+        today = datetime.today().date()
         self.completed.append(today)
 
     def is_complete(self):
-        """_summary_This method checks if a habit is complete
+        """marks habit as complete for today
 
         Returns:
-            _str_: _list of completed habits_
+            _str_: _returns completed habits_
         """
         if self.frequency == 'daily':
-            return datetime.date.today() in self.completed
+            return datetime.today().date() in self.completed
         elif self.frequency == 'weekly':
-            start_of_week = (datetime.date.today() - datetime.timedelta(days=datetime.date.today().weekday()))
-            end_of_week = start_of_week + datetime.timedelta(days=6)
+            start_of_week = (datetime.today().date() - timedelta(days=datetime.today().date().weekday()))
+            end_of_week = start_of_week + timedelta(days=6)
             for day in range((end_of_week - start_of_week).days + 1):
-                date = start_of_week + datetime.timedelta(days=day)
+                date = start_of_week + timedelta(days=day)
                 if date in self.completed:
                     return True
             return False
         elif self.frequency == 'monthly':
-            today = datetime.date.today()
+            today = datetime.today().date()
             if today.day >= 28:
-                end_of_month = today.replace(day=28) + datetime.timedelta(days=4)
+                end_of_month = today.replace(day=28) + timedelta(days=4)
                 for day in range((end_of_month - today).days + 1):
-                    date = today + datetime.timedelta(days=day)
+                    date = today + timedelta(days=day)
                     if date in self.completed:
                         return True
                 return False
             else:
                 return today.replace(day=1) in self.completed
 
-    def delete(self):
-        """_summary_This method deletes a habit"""
-        with sqlite3.connect('habits.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('DELETE FROM habits WHERE name = ?', (self.name,))
 
-    @staticmethod
-    def list_by_frequency(frequency):
+class HabitDB:
+    def __init__(self, db_file):
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
+
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS habits
+                        (name TEXT PRIMARY KEY, frequency TEXT, completed TEXT)''')
+
+    def __del__(self):
+        self.conn.close()
+
+    def add_habit(self, habit):
+        """_adds a habit to the database
+
+        Args:
+            habit (_str_): _adds a habit with frequency and default completed values_
+        """
+        self.cursor.execute('INSERT INTO habits (name, frequency, completed) VALUES (?, ?, ?)',
+                            (habit.name, habit.frequency, habit.completed))
+        self.conn.commit()
+
+    def delete_habit(self, habit_name):
+        """removes a habit from the database
+
+        Args:
+            habit_name (_str_): _will delete string values listed as habits from the database_
+        """
+        self.cursor.execute('DELETE FROM habits WHERE name = ?', (habit_name,))
+        self.conn.commit()
+
+    def update_habit(self, habit):
+        """udpates a habit in the database
+
+        Args:
+            habit (_type_): _description_
+        """
+        self.cursor.execute('UPDATE habits SET completed = ? WHERE name = ?', (str(habit.completed), habit.name))
+        self.conn.commit()
+
+    def get_all_habits(self):
+        """gets all habits from the database
+
+        Returns:
+            _str_: _gets list of all habits created_
+        """
+        self.cursor.execute('SELECT name, frequency, completed FROM habits')
+        rows = self.cursor.fetchall()
+        habits = []
+        for row in rows:
+            habit = Habit(row[0], row[1])
+            habit.completed = [datetime.date.fromisoformat(date_str) for date_str in row[2].split(',')]
+            habits.append(habit)
+        return [Habit(row[0], row[1], row[2]) for row in self.cursor.fetchall()]
+
+
+    def list_by_frequency(self, frequency):
         """_summary_
 
         Args:
-            frequency (_datetime_): _daily, weekly, monthly periodicity_
+            frequency (_type_): _description_
 
         Returns:
-            _str_: _list of habit frequencies_
+            _str_: _lists all habits plus their frequency_
         """
-        with sqlite3.connect('habits.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT name FROM habits WHERE frequency = ?', (frequency,))
-            return [row[0] for row in cursor.fetchall()]
+        self.cursor.execute('SELECT name FROM habits WHERE frequency = ?', (frequency,))
+        return [row[0] for row in self.cursor.fetchall()]
 
+    def get_streak(self, habit_name):
+        """_summary_
+
+        Args:
+            habit_name (_type_): _description_
+
+        Returns:
+            _type_: _returns streak of all habits_
+        """
+        streak = 0
+        today = datetime.today().date()
+        for day in range((today - timedelta(days=30)).days, (today - timedelta(days=1)).days + 1):
+            date = today - timedelta(days=day)
+            habit = self.get_habit(habit_name)
+            if habit and date in habit.completed:
+                streak += 1
+            else:
+                break
+        return streak
+
+    def get_habit(self, habit_name):
+        """gets a habit from the database
+
+        Args:
+            habit_name (_type_): _description_
+        """
+        self.cursor.execute('SELECT name, frequency, completed FROM habits WHERE name = ?', (habit_name,))
+        row = self.cursor.fetchone()
+        if row is None:
+            return
+        
     def save(self):
-        """_summary_This method saves a habit"""
-        with sqlite3.connect('habits.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('INSERT INTO habits (name, frequency, completed) VALUES (?, ?, ?)', (self.name, str(self.frequency), str(self.completed)))
+        """saves the database
+        """
+        self.conn.commit()
+        
+    def is_complete(self, habit_name):
+        """_summary_
 
-
-    def update(self):
-        """_summary_This method updates a habit"""
-        with sqlite3.connect('habits.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('UPDATE habits SET completed = ? WHERE name = ?', (self.completed, self.name))
-
-    @staticmethod
-    def get_all_habits():
-        """_summary_This method gets all habits
+        Args:
+            habit_name (_type_): _description_
 
         Returns:
-            _str_: _list of all habits created_
+            _bool_: _returns whether a habit is complete by true or false_
         """
-        with sqlite3.connect('habits.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT name, frequency, completed FROM habits')
-            rows = cursor.fetchall()
-            habits = []
-            for row in rows:
-                habit = Habit(row[0], row[1])
-                habit.completed = [datetime.date.fromisoformat(date_str) for date_str in row[2].split(',')]
-                habits.append(habit)
-            return habits
-
-def create_table():
-    """_summary_This method creates a table"""
-    with sqlite3.connect('habits.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS habits
-                          (name TEXT PRIMARY KEY, frequency TEXT, completed TEXT)''')
-
-def get_db_connection():
-    """_summary_This method gets the database connection
-
-    Returns:
-        _conn_: _establishes an sqlite3 connection_
-    """
-    
-    return sqlite3.connect('habits.db')
+        habit = self.get_habit(habit_name)
+        if habit:
+            return habit.is_complete()
+        return False

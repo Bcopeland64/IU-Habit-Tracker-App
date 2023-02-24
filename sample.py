@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from habit import HabitDB, Habit
 
 def get_daily_habits_completed_today():
-    """analyzes habits and returns list of habits completed today
+    """provides the user with a sample of the habits completed today
 
     Returns:
         _type_: _description_
@@ -17,7 +17,7 @@ def get_daily_habits_completed_today():
     return completed_habits
 
 def get_weekly_habits_completed_this_week():
-    """analyzes habits and returns list of habits completed this week
+    """provide a user with a sample of the habits completed this week
 
     Returns:
         _type_: _description_
@@ -36,7 +36,7 @@ def get_weekly_habits_completed_this_week():
     return completed_habits
 
 def get_monthly_habits_completed_this_month():
-    """analyzes habits and returns list of habits completed this month
+    """provides a user with a sample of the habits completed this month
 
     Returns:
         _type_: _description_

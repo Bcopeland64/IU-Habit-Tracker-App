@@ -1,81 +1,117 @@
-import datetime
-import questionary
-from db import HabitDB
-from habit import Habit
-
-def main():
-    """This is the main entry point of the program"""
-    while True:
-        choices = [
-            {'name': 'Create a habit', 'value': create_habit},
-            {'name': 'List habits', 'value': list_habits},
-            {'name': 'Mark habit complete', 'value': mark_complete},
-            {'name': 'Mark habit incomplete', 'value': mark_incomplete},
-            {'name': 'Delete a habit', 'value': delete_habit},
-            {'name': 'Exit', 'value': exit}
-        ]
-        choice = questionary.select('What would you like to do?', choices=choices).ask()
-
-        if choice:
-            choice()
+from habit import HabitDB, Habit
+from questionary import prompt, select, text
 
 def create_habit():
-    """This function creates a habit"""
-    name = questionary.text('Enter the name of the habit:').ask()
-    frequency = questionary.select('How often should this habit be completed?', choices=['daily', 'weekly', 'monthly']).ask()
+    """creates a habit"""
+    # Get input from user
+    name = input("Enter habit name: ")
+    frequency = input("Enter habit frequency: ")
     completed = False
-    habit = HabitDB(name, frequency)
-    habit.save()
-    print(f'Habit "{name}" with frequency "{frequency}" created successfully!')
 
-def list_habits():
-    """This function lists all habits"""
-    habits = Habit.list_all()
-    for habit in habits:
-        print(f'{habit.name} ({habit.frequency} days) - {"Complete" if habit.completed else "Incomplete"}')
+    # Create habit object
+    habit = Habit(name, frequency, completed)
 
-def mark_complete():
-    """This function marks a habit as complete"""
-    habits = Habit.list_all()
-    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
-    habit = questionary.select('Which habit would you like to mark as complete?', choices=habit_choices).ask()
-    habit.mark_complete()
-    print(f'Habit "{habit.name}" marked as complete!')
+    # Save habit to database
+    habit.save_habit()  # pass habit object to save_habit method
+    print(f"Habit '{name}' created successfully")
 
-def mark_incomplete():
-    """This function marks a habit as incomplete"""
-    habits = Habit.list_all()
-    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
-    habit = questionary.select('Which habit would you like to mark as incomplete?', choices=habit_choices).ask()
-    habit.mark_incomplete()
-    print(f'Habit "{habit.name}" marked as incomplete!')
+
+def mark_habit_complete():
+    """marks a habit as complete"""
+    db = HabitDB()
+    habits = db.get_all_habits()
+    if habits:
+        print("Select the habit you want to mark as complete:")
+        for habit in habits:
+            print(habit)
+
+        habit_id = int(input())  # user selects habit by id
+        for habit in habits:
+            if habit.id == habit_id:
+                habit.completed = True
+                habit.save_habit()  # update habit in database
+                print(f"Marked {habit.name} as complete!")
+                break
+        else:
+            print("Invalid selection.")
+    else:
+        print("There are no habits to mark as complete.")
 
 def delete_habit():
-    """This function deletes a habit"""
-    habits = Habit.list_all()
-    habit_choices = [{'name': habit.name, 'value': habit} for habit in habits]
-    habit = questionary.select('Which habit would you like to delete?', choices=habit_choices).ask()
-    habit.delete()
-    print(f'Habit "{habit.name}" deleted successfully!')
+    """deletes a habit"""
+    db = HabitDB()
+    habits = db.get_all_habits()
+    if not habits:
+        print("You don't have any habits to delete.")
+        return
+    print("Which habit would you like to delete?")
+    for i, habit in enumerate(habits):
+        print(f"{i + 1}. {habit[1]}")
+    habit_index = int(input("> ")) - 1
+    habit_id = habits[habit_index][0]
+    db.delete_habit(habit_id)
+    print(f"Habit '{habits[habit_index][1]}' deleted.")
+
+
+def list_habits():
+    """Lists all habits"""
+    frequency = select("Which frequency do you want to list habits for?", choices=["daily", "weekly", "monthly"]).ask()
+    habits = HabitDB.list_habits_by_frequency(frequency)
+    if not habits:
+        print(f"No habits found with frequency '{frequency}'")
+    else:
+        print(f"Habits with frequency '{frequency}':")
+        for habit in habits:
+            print(habit)
+
+def get_streak():
+    """gets the streak for a habit"""
+    habits = HabitDB.get_all_habits()
+    habit_names = [habit.name for habit in habits]
+    habit_name = select("Which habit do you want to get the streak for?", choices=habit_names).ask()
+    habit = next(filter(lambda h: h.name == habit_name, habits))
+    streak = habit.get_streak()
+    print(f"The streak for habit '{habit_name}' is {streak} days")
+    
+def save_habit():
+    """saves a habit to the database"""
+    # Get input from user
+    name = input("Enter habit name: ")
+    frequency = input("Enter habit frequency: ")
+    completed = False
+
+    # Create habit object
+    habit = Habit(name, frequency, completed)
+
+    # Save habit to database
+    habit.save_habit()  # pass habit object to save_habit method
     
 def help():
-    """This function displays the help menu"""
-    print('''
-    This is a habit tracker app. You can use it to create habits, mark them as complete, and delete them.
-    ''')
-    
-def list_commands():
-    """This function lists all commands"""
-    print('''
-    create_habit - Create a habit
-    list_habits - List all habits
-    mark_complete - Mark a habit as complete
-    mark_incomplete - Mark a habit as incomplete
-    delete_habit - Delete a habit
-    help - Display the help menu
-    list_commands - List all commands
-    exit - Exit the app
-    ''')
+    """generates help text"""
+    print("Commands:")
+    print("create_habit - create a habit")
+    print("mark_habit_complete - mark a habit as complete")
+    print("delete_habit - delete a habit")
+    print("list_habits - list all habits")
+    print("get_streak - get the streak for a habit")
+    print("exit - exit the program")
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    help()
+    while True:
+        command = select("What would you like to do?", choices=["create_habit", "mark_habit_complete", "delete_habit", "list_habits", "get_streak", "exit"]).ask()
+        if command == "create_habit":
+            create_habit()
+        elif command == "mark_habit_complete":
+            mark_habit_complete()
+        elif command == "delete_habit":
+            delete_habit()
+        elif command == "list_habits":
+            list_habits()
+        elif command == "get_streak":
+            get_streak()
+        elif command == "exit":
+            break
+        else:
+            print("Invalid command")
+    
