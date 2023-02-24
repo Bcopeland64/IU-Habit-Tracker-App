@@ -23,9 +23,9 @@ pip install -r requirements.txt
 ```sh
 
 Usage: python3 main.py [OPTIONS] COMMAND [ARGS]...
-       Make sure to create a habit first
-       Run the sample.py file to get an example of habits created daily, weekly, or monthly 
-       to familiarize yourself with the program
+       - Make sure to create a habit first
+       - Run the sample.py file to get an example of habits created daily, weekly, or monthly 
+         to familiarize yourself with the program
 
 Options:
   help  Show this message and exit.
