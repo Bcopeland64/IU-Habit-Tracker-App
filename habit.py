@@ -12,7 +12,7 @@ class Habit:
         """
         self.name = name
         self.frequency = frequency
-        self.completed = []
+        self.completed = datetime.date()
         
     def __str__(self):
         return self.name
@@ -66,8 +66,6 @@ class Habit:
             else:
                 break
         return streak
-
-
     
     def save_habit(self):
         """save a habit to the database"""
@@ -138,7 +136,7 @@ class HabitDB:
             _str_: _list of all habits_
         """
         self.cursor.execute('SELECT * FROM habits')
-        rows = self.cursor.fetchall()
+        rows = list(self.cursor.fetchall())
         return rows
     
     

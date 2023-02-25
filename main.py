@@ -1,5 +1,6 @@
 from habit import HabitDB, Habit
 from questionary import prompt, select, text
+from datetime import datetime, timedelta
 
 def create_habit():
     """creates a habit"""
@@ -21,7 +22,7 @@ def mark_habit_complete():
     db = HabitDB()
     habits = db.get_all_habits()
     if habits:
-        print("Select the habit you want to mark as complete:")
+        input = select("Which habit would you like to mark as complete?", choices=[f"{habit[0]}" for habit in habits]).ask()
         for habit in habits:
             print(habit)
 
@@ -66,12 +67,15 @@ def list_habits():
 
 def get_streak():
     """gets the streak for a habit"""
-    habits = HabitDB.get_all_habits()
-    habit_names = [habit.name for habit in habits]
+    habit_db = HabitDB()
+    habits = habit_db.get_all_habits()
+    habit_objs = [Habit(*habit) for habit in habits]  # convert tuple to Habit object
+    habit_names = [habit.name for habit in habit_objs]
     habit_name = select("Which habit do you want to get the streak for?", choices=habit_names).ask()
-    habit = next(filter(lambda h: h.name == habit_name, habits))
+    habit = next(filter(lambda h: h.name == habit_name, habit_objs))
     streak = habit.get_streak()
     print(f"The streak for habit '{habit_name}' is {streak} days")
+
     
 def save_habit():
     """saves a habit to the database"""
